@@ -4,7 +4,7 @@ An interactive, single-page dashboard that follows a drilling rig's lifecycle (m
 
 **All data is synthetic.** Equipment names follow public product descriptions, but quantities, prices, customers, dates and failure rates are generated. **Nothing here is NOV data**.
 
-**To check the live website click link in the About section. Thankyou!**
+To check the live website click link in the About section
 
 ## Structure
 
