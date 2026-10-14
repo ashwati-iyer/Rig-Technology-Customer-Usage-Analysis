@@ -2,7 +2,9 @@
 
 An interactive, single-page dashboard that follows a drilling rig's lifecycle (manufacture, sell and install, repair, spares) and turns it into a 12-month spares demand forecast. Built as a portfolio piece for a business data science role in rig technology.
 
-**All data is synthetic.** Equipment names follow public product descriptions, but quantities, prices, customers, dates and failure rates are generated. Nothing here is NOV data.
+**All data is synthetic.** Equipment names follow public product descriptions, but quantities, prices, customers, dates and failure rates are generated. **Nothing here is NOV data**.
+
+**To check the live website click link in the About section. Thankyou!**
 
 ## Structure
 
