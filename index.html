@@ -11,7 +11,7 @@
 :root{
   --paper:#E8EBE5;--panel:#F5F6F1;--ink:#13202A;--mute:#566470;--line:#C9D0C7;--hover:rgba(19,32,42,.08);--shade:rgba(19,32,42,.05);
   --man:#2B63A8;--ins:#177A60;--rep:#BE4519;--spa:#A87400;
-  --s1:#2B63A8;--s2:#7BA3D1;--s3:#A7B3BE;--s4:#13202A;
+  --s1:#2B63A8;--s2:#7BA3D1;--s3:#A7B3BE;--s4:#4B5C6A;
   --good:#177A60;--bad:#B3261E;--warn:#A87400;
   --plate-a:#FAFBF7;--plate-b:#E3E8E0;--rivet:#98A398;
   --fd:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--fb:'Public Sans','Segoe UI',Helvetica,Arial,sans-serif;
@@ -82,17 +82,17 @@ svg text{font-family:var(--fb)}
 .leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:var(--c);vertical-align:-1px}
 .leg .ln::before{height:2px;margin-bottom:3px;vertical-align:middle}
 /* overview hero */
-.hero h1{max-width:20ch}
+.hero h1{max-width:27ch;font-size:clamp(28px,3.4vw,42px)}
 .hero .sub{font-size:15.5px}
 .chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:30px}
 .stage{display:flex;flex-direction:column;gap:14px;min-width:0}
 .sg{font-family:var(--fd);font-weight:600;font-size:19px;display:flex;align-items:center;gap:10px;color:var(--c)}
 .sg::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,var(--c),transparent)}
 .stage:not(:last-child) .sg::after{background:var(--c);clip-path:polygon(0 0,calc(100% - 9px) 0,calc(100% - 9px) -4px,100% 50%,calc(100% - 9px) 6px,calc(100% - 9px) 2px,0 2px)}
-.snote{font-size:13px;color:var(--mute);line-height:1.45}
+.snote{font-size:13px;color:var(--mute);line-height:1.45;min-height:5.8em}
 .plates{display:flex;flex-direction:column;gap:14px;flex:1}
 /* KPI plate */
-.plate{position:relative;flex:1;display:flex;flex-direction:column;gap:2px;padding:16px 18px 14px;border-radius:10px;cursor:pointer;color:var(--ink);
+.plate{position:relative;flex:0 0 auto;display:flex;flex-direction:column;gap:2px;padding:16px 18px 14px;border-radius:10px;cursor:pointer;color:var(--ink);
   background:linear-gradient(150deg,var(--plate-a),var(--plate-b));border:1px solid var(--line);
   box-shadow:inset 0 0 0 4px var(--panel),inset 0 0 0 5px var(--line);transition:transform .15s,border-color .15s}
 .plate::before,.plate::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--panel),var(--rivet));top:9px}
@@ -110,7 +110,7 @@ svg text{font-family:var(--fb)}
 .legend-dir{display:inline-block;margin-left:4px;font-size:11px;color:var(--mute)}
 /* tables */
 .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
-input[type=search]{font:400 14px var(--fb);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:210px}
+input[type=search]{font:400 14px var(--fb);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:270px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--panel)}
 .seg button{border:0;background:none;padding:7px 12px;font-size:13.5px;color:var(--mute)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
@@ -196,6 +196,7 @@ input[type=range]{width:100%;accent-color:var(--c,var(--spa))}
 }
 @media (max-width:620px){.chain{grid-template-columns:1fr}.top{padding-top:16px}.flt select{min-width:130px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -275,7 +276,9 @@ RIGS.forEach(r=>{let a=R()<MKT[r.type](0);
 
 /* ---- units + monthly simulation ---- */
 const UNITS=[],WOS=[];let un=1;
+const PRES={Land:{TD:.9,MP:1,DW:.85,BOP:.6,PH:.7,CT:.95},'Jack-up':{TD:1,MP:1,DW:.9,BOP:.9,PH:.85,CT:1},Floater:{TD:1,MP:1,DW:.75,BOP:1,PH:1,CT:1}};
 RIGS.forEach(r=>{FAMS.forEach(f=>{
+  if(R()>PRES[r.type][f.id])return;
   const tm=f.id==='BOP'?({Land:.35,'Jack-up':.8,Floater:1.6})[r.type]:(r.type==='Floater'?1.15:r.type==='Land'?.9:1);
   const u={id:f.id+'-'+String(un++).padStart(5,'0'),rig:r.id,fam:f.id,model:pick(f.models),comm:Math.min(2024,r.comm+Math.round(rnd(0,4))),
     tm,pf:PF[r.region],cust:r.cust,region:r.region,type:r.type,
@@ -382,7 +385,7 @@ function forecast(units,scen,s,Hn){
     let a=0;for(let k=s-5;k<=s;k++)a+=u.hrs[k];const base=a/6, avgH=base*ut;
     const typH=Math.max(avgH,330*f.duty);
     const s0=.045*f.ovh, mu=f.ovh*1.015;
-    let hs=u.hs[s], prev=Phi((hs-mu)/s0), nx=false;
+    let hs=u.hs[s], sg0=Math.sqrt(s0*s0+Math.pow(.32*typH,2)), prev=Phi((hs-mu)/(hs>mu?s0:sg0)), nx=false;
     for(let h=0;h<Hn;h++){
       const x0=hs/f.ovh;hs+=avgH;
       o.cons[h]+=avgH*f.spHr*u.tm*u.pf*pr;
@@ -582,9 +585,9 @@ function kpis(){
     bl:A.bl[44],blP:A.bl[32],actN:A.act[44],actP:A.act[32]};
 }
 function bathData(){
-  const A=scope(),B=[0,.25,.5,.75,1,9],res={},tot={f:Array(5).fill(0),h:Array(5).fill(0)};
-  FAMS.forEach(f=>res[f.id]={f:Array(5).fill(0),h:Array(5).fill(0)});
-  A.units.forEach(u=>{const f=FAM[u.fam],r=res[u.fam];for(let m=0;m<NM;m++){const x=(m===0?u.hs0:u.hs[m-1])/f.ovh;let b=0;while(b<4&&x>=B[b+1])b++;
+  const A=scope(),B=[0,.25,.5,.75,9],res={},tot={f:Array(4).fill(0),h:Array(4).fill(0)};
+  FAMS.forEach(f=>res[f.id]={f:Array(4).fill(0),h:Array(4).fill(0)});
+  A.units.forEach(u=>{const f=FAM[u.fam],r=res[u.fam];for(let m=0;m<NM;m++){const x=(m===0?u.hs0:u.hs[m-1])/f.ovh;let b=0;while(b<3&&x>=B[b+1])b++;
     r.f[b]+=u.fail[m];r.h[b]+=u.hrs[m];tot.f[b]+=u.fail[m];tot.h[b]+=u.hrs[m];}});
   const idx=r=>{const sf=r.f.reduce((a,b)=>a+b,0),sh=r.h.reduce((a,b)=>a+b,0),avg=sh?sf/sh:0;return r.f.map((v,i)=>(r.h[i]>600&&avg)?(v/r.h[i])/avg:null);};
   const out={all:idx(tot),fam:{}};FAMS.forEach(f=>out.fam[f.id]=idx(res[f.id]));return out;
@@ -666,9 +669,9 @@ function pageOverview(){
   const P={
    man:{go:'manufacture',c:'var(--man)',tag:'Manufacture',val:(K.bl/1e9).toFixed(2),unit:'B USD',name:'Capital equipment backlog',good:K.bl>=K.blP,
      delta:`<b>${arrow(K.bl-K.blP)} ${sgn(K.blP?K.bl/K.blP-1:0)}</b> vs Sep 2025, book-to-bill ${K.b2b.toFixed(2)}`,sp:spark(Array.from(A.bl),'var(--man)')},
-   act:{go:'installed',c:'var(--ins)',tag:'Sell and installed base',val:num(K.actN),unit:'rigs drilling',name:'Active rigs on NOV equipment',good:K.actN>=K.actP,
+   act:{go:'installed',c:'var(--ins)',tag:'Installed base',val:num(K.actN),unit:'rigs',name:'Rigs drilling on NOV equipment',good:K.actN>=K.actP,
      delta:`<b>${arrow(K.actN-K.actP)} ${sgn(K.actP?K.actN/K.actP-1:0)}</b> vs Sep 2025, of ${num(A.rigs.length)} installed`,sp:spark(Array.from(A.act),'var(--ins)')},
-   utl:{go:'installed',c:'var(--ins)',tag:'Sell and installed base',val:Math.round(K.util3*100),unit:'%',name:'Fleet utilisation, 3-month average',good:K.util3>=K.utilP,
+   utl:{go:'installed',c:'var(--ins)',tag:'Installed base',val:Math.round(K.util3*100),unit:'%',name:'Fleet utilisation, 3-month average',good:K.util3>=K.utilP,
      delta:`<b>${arrow(K.util3-K.utilP)} ${Math.abs((K.util3-K.utilP)*100).toFixed(1)} pts</b> vs a year ago`,sp:spark(Array.from(A.util),'var(--ins)')},
    tat:{go:'repair',c:'var(--rep)',tag:'Repair',val:Math.round(K.tatN),unit:'days',name:'Repair turnaround, 12-month average',good:K.tatN<=K.tatP,
      delta:`<b>${arrow(K.tatP-K.tatN)} ${Math.abs(K.tatN-K.tatP).toFixed(1)} days</b> vs prior 12 months (lower is better)`,sp:spark(K.tatS,'var(--rep)')},
@@ -677,7 +680,7 @@ function pageOverview(){
    acc:{go:'spares',c:'var(--spa)',tag:'Spares',val:Math.round((1-bt.wape)*100),unit:'%',name:'Spares forecast accuracy',good:bt.wape<=bt.base,
      delta:`<b>${arrow(bt.base-bt.wape)} ${((bt.base-bt.wape)*100).toFixed(1)} pts</b> better than a trailing average`,sp:spark(bt.fc.map((v,i)=>1-Math.abs(v-bt.actual[i])/(bt.actual[i]||1)),'var(--spa)')}};
   const shipped=A.orders.filter(o=>o.act>=21&&o.act<=44).length;
-  const stage=(c,name,plates,note)=>`<div class="stage" style="--c:${c}"><div class="sg">${name}</div><div class="plates">${plates.map(plate).join('')}</div><p class="snote">${note}</p></div>`;
+  const stage=(c,name,plates,note)=>`<div class="stage" style="--c:${c}"><div class="sg">${name}</div><p class="snote">${note}</p><div class="plates">${plates.map(plate).join('')}</div></div>`;
   const chain=`<div class="chain">
    ${stage('var(--man)','Manufacture',[P.man],`${shipped} orders shipped in the last 24 months. Each one joins the installed base and starts consuming wear parts on day one.`)}
    ${stage('var(--ins)','Sell and install',[P.act,P.utl],'Hours on the rig decide how fast parts wear and when overhauls fall due, so usage is the main driver of demand.')}
@@ -701,8 +704,8 @@ function pageMan(){
   const W=wid(1),n=36,w2=wid(2),x36=lab(n);
   const stk=GRPS.map((g,i)=>({name:g,color:`var(--s${i+1})`,data:last(n,A.blG[g]).map(v=>v/1e6)}));
   const line=lineChart({w:w2,h:250,x:x36,ymin:0,yfmt:v=>'$'+v+'M',tfmt:tM,label:'Order intake and shipments',
-    series:[{name:'Orders booked',color:'var(--man)',width:2.4,data:last(n,A.oin).map((v,i,a)=>mean(a.slice(Math.max(0,i-2),i+1))/1e6)},
-            {name:'Shipments',color:'var(--ink)',width:2.4,dash:'6 4',data:last(n,A.oout).map((v,i,a)=>mean(a.slice(Math.max(0,i-2),i+1))/1e6)}]});
+    series:[{name:'Orders booked',color:'var(--man)',width:2.4,data:last(n,A.oin).map((v,i,a)=>mean(a.slice(Math.max(0,i-5),i+1))/1e6)},
+            {name:'Shipments',color:'var(--ink)',width:2.4,dash:'6 4',data:last(n,A.oout).map((v,i,a)=>mean(a.slice(Math.max(0,i-5),i+1))/1e6)}]});
   const hm=heat(GRPS,PLANTS,(i,j)=>{const x=o.filter(q=>q.act>=21&&q.act<=44&&q.grp===GRPS[i]&&q.plant===PLANTS[j]);return x.length>=2?mean(x.map(q=>q.slip)):null},'var(--rep)',v=>v.toFixed(1)+' mo',4);
   const filt=()=>S.oFilter==='All'?o:S.oFilter==='Open'?open:o.filter(x=>x.delivered);
   TB.orders=()=>table('orders',[
@@ -716,7 +719,7 @@ function pageMan(){
      expand:r=>S.open.order!==r.id?'':orderDetail(r)});
   return pageHead(1,'Manufacture','Capital orders, backlog and delivery reliability. This is where the installed base of the future is built, so shipment dates here set when spares demand starts.',c)+
   `<section>${stats(c,[[fb(K.bl),'Capital backlog'],[K.b2b.toFixed(2),'Book-to-bill, 12 months'],[pc0(ot(sh12)),`On-time shipments (within 1 month); ${pc0(ot(shP))} a year ago`],[(slip>=0?'+':'')+slip.toFixed(1),`Average slip in months; ${slipP.toFixed(1)} a year ago`],[num(open.length),'Open orders']])}</section>
-  ${sec('Backlog and order flow','Backlog by product group over the last three years, and how quickly new orders are being converted into shipments.',`<div class="grid2">${pcard('Backlog by product group','Open order value at each month end.',legend(GRPS.map((g,i)=>({n:g,c:`var(--s${i+1})`})))+stackCols({w:w2,h:250,x:x36,stacks:stk,yfmt:v=>'$'+(v/1000).toFixed(1)+'B',tfmt:tM,xevery:5,gap:.8,label:'Backlog by product group'}))}${pcard('Orders booked against shipments','Three-month average, $M per month. Orders above shipments grow the backlog.',legend([{n:'Orders booked',c:'var(--man)',ln:1},{n:'Shipments',c:'var(--ink)',ln:1}])+line)}</div>`)}
+  ${sec('Backlog and order flow','Backlog by product group over the last three years, and how quickly new orders are being converted into shipments.',`<div class="grid2">${pcard('Backlog by product group','Open order value at each month end.',legend(GRPS.map((g,i)=>({n:g,c:`var(--s${i+1})`})))+stackCols({w:w2,h:250,x:x36,stacks:stk,yfmt:v=>'$'+(v/1000).toFixed(1)+'B',tfmt:tM,xevery:5,gap:.8,label:'Backlog by product group'}))}${pcard('Orders booked against shipments','Six-month average, $M per month. Orders above shipments grow the backlog.',legend([{n:'Orders booked',c:'var(--man)',ln:1},{n:'Shipments',c:'var(--ink)',ln:1}])+line)}</div>`)}
   ${sec('Where deliveries slip','Average months late for shipments in the last 24 months. Darker cells mean longer slips, and the cell tooltip gives the exact figure.',pcard('Slip by product group and plant','Cells need at least two shipments to show.',hm))}
   ${sec('Order book at full detail','Every order in scope. Select a row to see its build timeline, and sort or search to find a customer, plant or product.',`<div class="tools"><div class="seg" role="group" aria-label="Order status">${['Open','Delivered','All'].map(v=>`<button aria-pressed="${S.oFilter===v}" data-act="ofilter" data-v="${v}">${v}</button>`).join('')}</div>${tsearch('orders','Search orders, customers, plants')}</div>${tbox('orders')}`)}`;
 }
@@ -759,13 +762,13 @@ function unitPanel(r,FC){
 function pageIns(){
   const K=kpis(),A=K.A,c='var(--ins)',FC=K.fc,W=wid(1),w2=wid(2);
   const age=A.units.length?mean(A.units.map(u=>2026-u.comm)):0,near=A.units.filter(u=>u.hs[NOW]/FAM[u.fam].ovh>=.8);
-  const typeSeries=RTYPES.filter(t=>A.typeUtil[t].n>0).map((t,i)=>({name:t+' rigs',color:['var(--spa)','var(--man)','var(--ins)'][RTYPES.indexOf(t)],width:2.4,data:Array.from(A.typeUtil[t].u).map(v=>v==null?null:v*100)}));
+  const typeSeries=RTYPES.filter(t=>A.typeUtil[t].n>0).map((t,i)=>({name:t+' rigs',color:['var(--s4)','var(--s2)','var(--s1)'][RTYPES.indexOf(t)],width:2.4,data:Array.from(A.typeUtil[t].u).map(v=>v==null?null:v*100)}));
   const util=lineChart({w:W,h:250,x:Array.from({length:NM},(_,i)=>mLab(i)),ymin:0,ymax:100,yfmt:v=>v+'%',tfmt:v=>v.toFixed(0)+'%',xevery:4,series:typeSeries,label:'Utilisation by rig type'});
   const bands=[['Under 5 years',0,4],['5 to 9 years',5,9],['10 to 14 years',10,14],['15 years and over',15,99]];
   const ageStk=bands.map((b,i)=>({name:b[0],color:`var(--s${i+1})`,data:FAMS.map(f=>A.units.filter(u=>u.fam===f.id&&2026-u.comm>=b[1]&&2026-u.comm<=b[2]).length)}));
   const wins=[['Under 40% used',0,.4,'var(--s3)'],['40 to 80%',.4,.8,'var(--s2)'],['80 to 100%',.8,1,'var(--spa)'],['Past 100%',1,9,'var(--rep)']];
   const winStk=wins.map(b=>({name:b[0],color:b[3],data:FAMS.map(f=>A.units.filter(u=>{const x=u.hs[NOW]/f.ovh;return u.fam===f.id&&x>=b[1]&&x<b[2]}).length)}));
-  const rows=custRows(),kc={Offshore:'var(--man)',Land:'var(--spa)',Mixed:'var(--ins)'};
+  const rows=custRows(),kc={Offshore:'var(--s1)',Land:'var(--s4)',Mixed:'var(--s2)'};
   const sc=rows.length?scatter({w:W,h:290,xmin:0,ymin:0,xl:'Rigs in scope',xfmt:v=>v,yfmt:v=>v+'%',label:'Customers by fleet size and utilisation',
     pts:rows.map(r=>({x:r.n,y:r.util*100,r:Math.max(6,Math.sqrt(r.spend/1e6)*2.6),color:kc[r.kind],label:r.name.slice(-1),
       tip:`<b>${r.name}</b> (${r.kind.toLowerCase()})<br>${r.n} rigs, ${pc0(r.util)} utilised<br>Spares last 12 months: ${fm(r.spend)}`,attr:`data-act="toggle" data-key="cust" data-id="${r.id}" data-t="cust"`}))}):'';
@@ -779,7 +782,7 @@ function pageIns(){
   `<section>${stats(c,[[num(A.rigs.length),'Rigs with NOV equipment'],[num(K.actN),`Drilling now (${pc0(K.actN/Math.max(1,A.rigs.length))})`],[pc0(K.util3),'Utilisation, 3 months'],[age.toFixed(1)+' yr','Average equipment age'],[num(near.length),'Units past 80% of overhaul interval'],[num(FC.next.size),'Overhauls expected in 12 months']])}</section>
   ${sec('How customers use their rigs','Share of each rig type\'s hours that were spent drilling, month by month. Offshore recovery lifts hours, and hours convert directly into parts consumption.',legend(typeSeries.map(s=>({n:s.name,c:s.color,ln:1})))+util)}
   ${sec('Age and remaining life of the installed base','Calendar age says little about wear. The share of each overhaul interval already used says when parts and kits will be needed.',`<div class="grid2">${pcard('Units by age and family','Number of equipment units.',legend(bands.map((b,i)=>({n:b[0],c:`var(--s${i+1})`})))+stackCols({w:w2,h:260,x:FAMS.map(f=>f.name.replace(' & pressure control','').replace('Controls & drives','Controls')),stacks:ageStk,xall:true,gap:.6,yfmt:v=>num(v),tfmt:num,xb:26,label:'Units by age'}))}${pcard('Units by share of overhaul interval used','Units past 80% enter the overhaul window.',legend(wins.map(b=>({n:b[0],c:b[3]})))+stackCols({w:w2,h:260,x:FAMS.map(f=>f.name.replace(' & pressure control','').replace('Controls & drives','Controls')),stacks:winStk,xall:true,gap:.6,yfmt:v=>num(v),tfmt:num,xb:26,label:'Units by life used'}))}</div>`)}
-  ${sec('Customers by fleet size and utilisation','Bubble size is spares spend in the last 12 months. Select a bubble to open that customer in the table below.',legend([{n:'Offshore fleet',c:'var(--man)'},{n:'Land fleet',c:'var(--spa)'},{n:'Mixed fleet',c:'var(--ins)'}])+sc)}
+  ${sec('Customers by fleet size and utilisation','Bubble size is spares spend in the last 12 months. Select a bubble to open that customer in the table below.',legend([{n:'Offshore fleet',c:'var(--s1)'},{n:'Land fleet',c:'var(--s4)'},{n:'Mixed fleet',c:'var(--s2)'}])+sc)}
   ${sec('Customer, rig and equipment unit','Three levels of detail. Select a customer to list its rigs, then a rig to list each unit with its life used, health and expected overhaul month.',`<div class="tools">${tsearch('cust','Search customers')}</div>${tbox('cust')}`)}`;
 }
 
@@ -788,7 +791,7 @@ function pageRep(){
   const K=kpis(),A=K.A,c='var(--rep)',w2=wid(2),W=wid(1);
   const w12=A.wos.filter(w=>w.m>=33),un=w12.filter(w=>!w.planned),hrs12=sum(A.hrs,33,44),fails12=sum(A.fails,33,44),ov=overflowStats();
   const n=36,x36=lab(n),planned=Array(NM).fill(0),unpl=Array(NM).fill(0);A.wos.forEach(w=>{(w.planned?planned:unpl)[w.m]++});
-  const bd=bathData(),bl=['0 to 25%','25 to 50%','50 to 75%','75 to 100%','100% and over'];
+  const bd=bathData(),bl=['0 to 25%','25 to 50%','50 to 75%','75% and over'];
   const fcol=['var(--s1)','var(--ins)','var(--spa)','var(--mute)','var(--man)','var(--s2)'];
   const bath=lineChart({w:w2,h:260,x:bl,ymin:0,yfmt:v=>v.toFixed(1)+'x',tfmt:v=>v.toFixed(2)+'x',xevery:1,label:'Failure rate by life used',
     series:[...FAMS.map((f,i)=>({name:f.name,color:fcol[i],width:1.4,data:bd.fam[f.id]})),{name:'All families',color:'var(--rep)',width:3.2,data:bd.all}]});
@@ -796,7 +799,7 @@ function pageRep(){
   const ml=Object.entries(modes).sort((a,b)=>b[1].n-a[1].n),mt=ml.reduce((a,b)=>a+b[1].n,0);let cum=0;
   const pareto=barH(ml.slice(0,10).map(([k,v])=>{cum+=v.n;const [f,m]=k.split(': ');return{label:m,sub:f,v:v.n,text:num(v.n),sub2:'cumulative '+pc0(cum/mt),color:'var(--rep)'}}),{color:'var(--rep)'});
   const cen=CENTERS.map(ce=>{const x=w12.filter(w=>w.center===ce);return{ce,n:x.length,tat:mean(x.map(w=>w.tat)),ovf:x.length?x.filter(w=>w.overflow).length/x.length:0}}).filter(r=>r.n>0);
-  const cbars=barH(cen.sort((a,b)=>b.tat-a.tat).map(r=>({label:r.ce,sub:`${r.n} work orders`,v:r.tat,text:r.tat.toFixed(1)+' days',sub2:pc0(r.ovf)+' from other regions',color:r.ce==='Houston'?'var(--s1)':'var(--rep)'})),{max:Math.max(...cen.map(r=>r.tat),1)});
+  const cbars=barH(cen.sort((a,b)=>b.tat-a.tat).map(r=>({label:r.ce,sub:`${r.n} work orders`,v:r.tat,text:r.tat.toFixed(1)+' days',sub2:r.ce==='Houston'?pc0(r.ovf)+' overflow from other regions':'home-region work',color:r.ce==='Houston'?'var(--s1)':'var(--rep)'})),{max:Math.max(...cen.map(r=>r.tat),1)});
   TB.wo=()=>table('wo',[{k:'id',l:'Work order'},{k:'m',l:'Month',f:r=>mLab(r.m)},{k:'unit',l:'Unit',f:r=>`${r.unit}<small>${r.model}</small>`},{k:'fam',l:'Family',f:r=>FAM[r.fam].name},
     {k:'cust',l:'Customer',f:r=>CUST[r.cust].name},{k:'mode',l:'Work',f:r=>r.planned?'Planned overhaul':r.mode},{k:'center',l:'Centre',f:r=>r.center+(r.overflow?'<small>overflow</small>':'')},
     {k:'tat',l:'Turnaround',al:'r',f:r=>r.tat+' days'},{k:'cost',l:'Value',al:'r',f:r=>fk(r.cost)}],A.wos.filter(w=>w.m>=21),
@@ -804,7 +807,7 @@ function pageRep(){
      rowAttr:r=>`data-act="toggle" data-key="wo" data-id="${r.id}" data-t="wo"`,rowCls:r=>S.open.wo===r.id?'sel':'',
      expand:r=>S.open.wo!==r.id?'':`<div class="kv"><div><span>Rig</span><b>${r.rig}</b></div><div><span>Region</span><b>${r.region}</b></div><div><span>Parts consumed</span><b>${fk(r.parts)}</b></div><div><span>Labour and services</span><b>${fk(r.labour)}</b></div><div><span>Family average turnaround</span><b>${FAM[r.fam].tat*(r.planned?1.5:.75)|0} days</b></div><div><span>Routing</span><b>${r.overflow?'Outside home centre':'Home centre'}</b></div></div>`});
   return pageHead(3,'Repair','Failures, planned overhauls and how quickly the service network turns equipment around. Repairs are the earliest signal that a unit is wearing out, and each one pulls parts.',c)+
-  `<section>${stats(c,[[num(w12.length),'Work orders, last 12 months'],[Math.round(K.tatN)+' days',`Average turnaround; ${Math.round(K.tatP)} a year ago`],[pc0(w12.length?un.length/w12.length:0),'Unplanned share of work'],[(hrs12?fails12/hrs12*1000:0).toFixed(2),'Failures per 1,000 operating hours'],[fm(sum(A.rep,33,44)),'Repair revenue, 12 months']])}</section>
+  `<section>${stats(c,[[num(w12.length),'Work orders, last 12 months'],[Math.round(K.tatN)+' days',`Average turnaround; ${Math.round(K.tatP)} a year ago`],[pc0(w12.length?un.length/w12.length:0),'Unplanned share of work'],[(A.units.length?un.length/A.units.length*100:0).toFixed(0),'Unplanned repairs per 100 units, 12 months'],[fm(sum(A.rep,33,44)),'Repair revenue, 12 months']])}</section>
   ${sec('Planned against unplanned work','Monthly work orders over the last three years. A rising unplanned share means customers are running equipment past its service point.',legend([{n:'Planned overhaul',c:'var(--s2)'},{n:'Unplanned repair',c:'var(--rep)'}])+stackCols({w:W,h:230,x:x36,stacks:[{name:'Planned overhaul',color:'var(--s2)',data:last(n,planned)},{name:'Unplanned repair',color:'var(--rep)',data:last(n,unpl)}],gap:.8,xevery:4,yfmt:num,tfmt:num,label:'Work orders by month'}))}
   ${sec('Why equipment fails and where it is fixed','Failure risk climbs as a unit uses up its overhaul interval, which is the case for condition-based overhaul triggers. The Pareto shows which failure modes deserve stocked parts.',`<div class="grid2">${pcard('Failure rate by share of interval used','Each line is indexed to its own family average (1.0x). Above 1.0x means more failures than normal.',legend([...FAMS.map((f,i)=>({n:f.name.replace(' & pressure control',''),c:fcol[i],ln:1})),{n:'All families',c:'var(--rep)',ln:1}])+bath)}${pcard('Most frequent unplanned failure modes','Last 24 months, top ten by count.',pareto)}</div>`)}
   ${sec('Service centre turnaround','Average days to turn a work order in the last 12 months. Work routed away from the home centre takes about '+Math.round(ov.extra)+' days longer on average ('+pc0(ov.share)+' of orders).',cbars)}

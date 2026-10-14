@@ -1,0 +1,7 @@
+pandas
+numpy
+lightgbm
+lifelines
+statsforecast
+mapie
+pyarrow
